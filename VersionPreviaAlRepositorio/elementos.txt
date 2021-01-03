@@ -1,0 +1,6 @@
+puerto mini usb/micro usb
+2 Tornillos largo, 8 roscas, maderas (todo para unir el pote con el servo)
+receptor IR
+rele 220V
+enchufe 220v 1xmacho y 1xhembra para pared y otro para placa
+3 Led rojo y 3 verdes, 6 resistencias 470 Ohm

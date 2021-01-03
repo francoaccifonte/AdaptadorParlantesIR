@@ -1,0 +1,10 @@
+(fp_lib_table
+  (lib (name Transistors_OldSowjetAera)(type KiCad)(uri "$(KISYSMOD)/Transistors_OldSowjetAera.pretty")(options "")(descr ""))
+  (lib (name TO_SOT_Packages_THT)(type KiCad)(uri "$(KISYSMOD)/TO_SOT_Packages_THT.pretty")(options "")(descr ""))
+  (lib (name Relays_THT)(type KiCad)(uri "$(KISYSMOD)/Relays_THT.pretty")(options "")(descr ""))
+  (lib (name Potentiometers)(type KiCad)(uri "$(KISYSMOD)/Potentiometers.pretty")(options "")(descr ""))
+  (lib (name modificados)(type KiCad)(uri "$(KIGITHUB)/Users/Don Ramon/Dropbox/Proyecto parlantes/esquematico/modificados.pretty")(options "")(descr ""))
+  (lib (name Displays_7-Segment)(type KiCad)(uri "$(KISYSMOD)/Displays_7-Segment.pretty")(options "")(descr ""))
+  (lib (name LEDs)(type KiCad)(uri "$(KISYSMOD)/LEDs.pretty")(options "")(descr ""))
+  (lib (name Wire_Pads)(type KiCad)(uri "$(KISYSMOD)/Wire_Pads.pretty")(options "")(descr ""))
+)

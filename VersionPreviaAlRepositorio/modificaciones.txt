@@ -1,0 +1,2 @@
+1) Cambiar volumen de encendido de 0 a 3.5
+2) Hacer que cuando esta apagado, el micro quede en low power
