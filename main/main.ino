@@ -11,6 +11,8 @@
 const int pinIrRcv = 2;
 const int pinRelayCont = 16;
 const int pinServo = 15;
+const int pinKnobIn = 22;
+const int pinModeSelector = 19;
 const int displayA = 12;
 const int displayB = 13;
 const int displayC = 10;
@@ -32,6 +34,7 @@ int posicionServo = 1;
 int maxServo = 150;
 bool powerStatus = false;
 bool muteStatus = false;
+bool manualMode = false;
 
 int backupVolMute=0;
 
@@ -50,20 +53,18 @@ IRdecode myDecoder;
 
 //----------------- LIBRERONGAS -----------------------
 
-
-
 #include "displayMacros.h"
 #include "remoteMacros.h"
-
-
 
 void setup()
 {
   //Serial.begin(9600);
   //Serial.println("Empezo la serial");
   configLeds();
-  pinMode(pinRelayCont,OUTPUT);
-  digitalWrite(pinRelayCont,LOW);
+  pinMode(pinRelayCont, OUTPUT);
+  digitalWrite(pinRelayCont, LOW);
+  pinMode(pinKnobIn, INPUT);
+  digitalWrite(pinKnobIn, HIGH);
   //myservo.attach(pinServo);
   myservo.write(posicionServo);
   myReceiver.enableIRIn();
