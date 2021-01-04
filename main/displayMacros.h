@@ -58,11 +58,11 @@
 #define MACledRGW 0b00111000;
 #define MACledOFF 0;
 
-void mostrarDisp(byte statusDispB,byte statusDispD,byte statusLeds)
+void mostrarDisp(byte statusDispB, byte statusDispD, byte statusLeds)
 {
   // PORTB: [? ? B A Dp C D E]
   // PORTD: [F G LR LG LW IR X X]
-  const int delayEnganarOjo = 3;
+  const int delayEnganarOjo = 1;
   const byte maskUnknownD = 0b00000011;
   const byte maskUnknownB = 0b11000000;
   byte maskB = 0b00000001;
@@ -90,8 +90,8 @@ void mostrarDisp(byte statusDispB,byte statusDispD,byte statusLeds)
 void escalarNumero(int valor, int maximo)
 {
 	int aux=0;
-	if (valor>=0 && valor<=maximo)
-	aux = 10*valor/maximo;
+	if ( valor >= 0 && valor <= maximo )
+		aux = 10 * valor / maximo;
 
 	switch (aux) {
 	    case 0:

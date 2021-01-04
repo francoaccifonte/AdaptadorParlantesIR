@@ -11,7 +11,7 @@
 const int pinIrRcv = 2;
 const int pinRelayCont = 16;
 const int pinServo = 15;
-const int pinKnobIn = 22;
+const int pinKnobIn = A7;
 const int pinModeSelector = 19;
 const int displayA = 12;
 const int displayB = 13;
@@ -36,7 +36,7 @@ bool powerStatus = false;
 bool muteStatus = false;
 bool manualMode = false;
 
-int backupVolMute=0;
+int backupVolMute = 0;
 
 //---------------- OJETOS -----------------------------
 #include <avr/sleep.h>
@@ -58,8 +58,9 @@ IRdecode myDecoder;
 
 void setup()
 {
-  //Serial.begin(9600);
-  //Serial.println("Empezo la serial");
+  Serial.begin(9600);
+  Serial.println("Controlador de volumen de equipo de audio. Version compilada el  03/01/2021");
+
   configLeds();
   pinMode(pinRelayCont, OUTPUT);
   digitalWrite(pinRelayCont, LOW);
@@ -75,26 +76,17 @@ void setup()
 
 void loop()
 {
-  if (myReceiver.getResults())
+  if (manualMode == true)
   {
-    updateStatuses();
+    manualMain();
   }
-  escalarNumero(posicionServo,maxServo);
-  mostrarDisp(statusDispB,statusDispD,statusLeds);
-  // for (int i=0 ; i<= maxServo ; i++)
-  // {
-  //   escalarNumero(i,maxServo);
-  //   mostrarDisp(statusDispB,statusDispD,statusLeds);
-  //   myservo.write(i);
-
-  // }
-  // for (int i=maxServo ; i>=0; i--)
-  // {
-  //   escalarNumero(i,maxServo);
-  //   mostrarDisp(statusDispB,statusDispD,statusLeds);
-  //   myservo.write(i);
-  // }
-
+  else
+  {
+    remoteMain();
+  }
+  
+  escalarNumero(posicionServo, maxServo);
+  mostrarDisp(statusDispB, statusDispD, statusLeds);
 }
 
 void configLeds()

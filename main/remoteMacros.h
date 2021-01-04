@@ -51,7 +51,38 @@
 #define CEL_NEC_CH_DOWN 0x18E7807F
 #define CEL_NEC_MENU 0x18182DD2
 
+void togglePower();
+void toggleMute();
+void toggleManualMode();
+void writeServoPosition(int);
+void mapServoFromIR();
+void updateStatuses();
+void manualMain();
+void remoteMain();
 
+void manualMain()
+{
+	if (myReceiver.getResults())
+	{
+		myDecoder.decode();
+		if (myDecoder.value == NEC_RED)
+		{
+			toggleManualMode();
+		}
+	}
+	int volumen = analogRead(pinKnobIn);
+	float volumen_escalado = volumen / 1023.0 * maxServo;
+	writeServoPosition(round(volumen_escalado));
+	myReceiver.enableIRIn();
+}
+
+void remoteMain()
+{
+	if (myReceiver.getResults())
+    {
+      updateStatuses();
+    }
+}
 
 void togglePower()
 {
@@ -75,121 +106,141 @@ void togglePower()
 
 void toggleMute()
 {
-	if (muteStatus==true)
+	if (muteStatus == true)
 	{
-		posicionServo = backupVolMute;
+		Serial.println("primer bloque");
 		muteStatus = false;
-		statusLeds = statusLeds^MACledR;
+		writeServoPosition(backupVolMute);
+		statusLeds = statusLeds ^ MACledR;
 	}
 	else
 	{
+		Serial.println("segundo bloque");
 		backupVolMute = posicionServo;
-		posicionServo = 0;
+		writeServoPosition(0);
 		muteStatus = true;
-		statusLeds = statusLeds|MACledR;
+		statusLeds = statusLeds | MACledR;
 	}
 }
 
-void togglePhysicMode()
+void toggleManualMode()
 {
-
+	Serial.println("toggle manual mode");
+	if (manualMode == true)
+	{
+		statusLeds = statusLeds^MACledW;
+	}
+	else
+	{
+		statusLeds = statusLeds|MACledW;
+	}
+	manualMode = !manualMode;
 }
 
+void writeServoPosition(int nuevaPosicionServo)
+{
+	// Nota: a veces al mover el servo, se queda vibrando en el lugar. Si le muevo un poco la posicion deja de vibrar, por eso el +-1 al actualizar la posicion.
+	if (muteStatus == true)
+		return NULL;
 
-void updateStatuses()
+	int posicionServoAnterior = posicionServo;
+	posicionServo = nuevaPosicionServo;
+	if (posicionServo > maxServo)
+		posicionServo = maxServo;
+	if (posicionServo < 0)
+		posicionServo = 1;
+	if (myservo.read() < posicionServo)
+	{
+		myservo.write(posicionServo);
+		delay(10);
+		myservo.write(posicionServo - 1);
+	}
+	else if(myservo.read() > posicionServo)
+	{
+		myservo.write(posicionServo);
+		delay(10);
+		myservo.write(posicionServo + 1);
+	}
+	else
+	{
+		Serial.println("hiciste cagada che");
+	}
+
+	if (posicionServo != posicionServoAnterior)
+	{
+		Serial.println("Nuevo volumen:" + String(posicionServo));
+	}
+}
+
+void mapServoFromIR() // TODO: cambiarle el nombre
+{
+	int nuevaPosicionServo = posicionServo;
+	switch (myDecoder.value)
+		{
+		    case NEC_0: case CEL_NEC_0:
+		      writeServoPosition(0 * maxServo/10);
+		      break;
+		    case NEC_1: case CEL_NEC_1:
+		      writeServoPosition(1 * maxServo/10);
+		      break;
+		    case NEC_2: case CEL_NEC_2:
+		      writeServoPosition(2 * maxServo/10);
+		      break;
+		    case NEC_3: case CEL_NEC_3:
+		      writeServoPosition(3 * maxServo/10);
+		      break;
+		    case NEC_4: case CEL_NEC_4:
+		      writeServoPosition(4 * maxServo/10);
+		      break;
+		    case NEC_5: case CEL_NEC_5:
+		      writeServoPosition(5 * maxServo/10);
+		      break;
+		    case NEC_6: case CEL_NEC_6:
+		      writeServoPosition(6 * maxServo/10);
+		      break;
+		    case NEC_7: case CEL_NEC_7:
+		      writeServoPosition(7 * maxServo/10);
+		      break;
+		    case NEC_8: case CEL_NEC_8:
+		      writeServoPosition(8 * maxServo/10);
+		      break;
+		    case NEC_9: case CEL_NEC_9:
+		      writeServoPosition(9 * maxServo/10);
+		      break;
+		    case NEC_VOL_UP: case CEL_NEC_VOL_UP:
+		      writeServoPosition(posicionServo + 1);
+		      break;
+		    case NEC_VOL_DOWN: case CEL_NEC_VOL_DOWN:
+		      writeServoPosition(posicionServo - 1);
+		      break;
+		    case NEC_CH_UP: case CEL_NEC_UP:
+			  writeServoPosition(posicionServo + maxServo/10);
+		      break;
+		    case NEC_CH_DOWN: case CEL_NEC_DOWN:
+		      writeServoPosition(posicionServo - maxServo/10);
+		      break;
+		    case NEC_POWER: case CEL_NEC_POWER: case CEL_NEC_MENU:
+		      togglePower();
+		      break;
+		    case NEC_MUTE: case CEL_NEC_MUTE:
+		      toggleMute();
+		      break;
+		    case NEC_RED:
+		      toggleManualMode();
+		      break;
+		    default:
+		      break;
+		}
+	return nuevaPosicionServo;
+}
+
+void updateStatuses() // TODO: cambiarle el nombre
 {
 	myDecoder.decode();           //Decode it
 	if (powerStatus==true || (myDecoder.value == NEC_POWER ||
 							              myDecoder.value == CEL_NEC_POWER ||
 							              myDecoder.value == CEL_NEC_MENU ))
-		switch (myDecoder.value) 
-		{
-		    case NEC_0:
-		    case CEL_NEC_0:
-		      posicionServo = 0 * maxServo/10;
-		      break;
-		    case NEC_1:
-		    case CEL_NEC_1:
-		      posicionServo = 1 * maxServo/10;
-		      break;
-		    case NEC_2:
-		    case CEL_NEC_2:
-		      posicionServo = 2 * maxServo/10;
-		      break;
-		    case NEC_3:
-		    case CEL_NEC_3:
-		      posicionServo = 3 * maxServo/10;
-		      break;
-		    case NEC_4:
-		    case CEL_NEC_4:
-		      posicionServo = 4 * maxServo/10;
-		      break;
-		    case NEC_5:
-		    case CEL_NEC_5:
-		      posicionServo = 5 * maxServo/10;
-		      break;
-		    case NEC_6:
-		    case CEL_NEC_6:
-		      posicionServo = 6 * maxServo/10;
-		      break;
-		    case NEC_7:
-		    case CEL_NEC_7:
-		      posicionServo = 7 * maxServo/10;
-		      break;
-		    case NEC_8:
-		    case CEL_NEC_8:
-		      posicionServo = 8 * maxServo/10;
-		      break;
-		    case NEC_9:
-		    case CEL_NEC_9:
-		      posicionServo = 9 * maxServo/10;
-		      break;
-		    case NEC_VOL_UP:
-		    case CEL_NEC_VOL_UP:
-		      posicionServo++;
-		      break;
-		    case NEC_VOL_DOWN:
-		    case CEL_NEC_VOL_DOWN:
-		      posicionServo--;
-		      break;
-		    case NEC_CH_UP:
-		    case CEL_NEC_UP:
-		      posicionServo=posicionServo+maxServo/10;
-		      break;
-		    case NEC_CH_DOWN:
-		    case CEL_NEC_DOWN:
-		      posicionServo=posicionServo-maxServo/10;
-		      break;
-		    case NEC_POWER:
-		    case CEL_NEC_POWER:
-		    case CEL_NEC_MENU:
-		      togglePower();
-		      break;
-		    case NEC_MUTE:
-		    case CEL_NEC_MUTE:
-		      toggleMute();
-		      break;
-		    case NEC_RED:
-		      //togglePhysicMode();
-		      break;
-		    default:
-		      break;
-		}
-	if (posicionServo>maxServo)
-		posicionServo=maxServo;
-	if (posicionServo<0) 
-		posicionServo=1;
-	if (myservo.read()<posicionServo)
-	{
-		myservo.write(posicionServo);
-		myservo.write(posicionServo-1);
-	}
-	else if(myservo.read()>posicionServo)
-	{
-		myservo.write(posicionServo);
-		myservo.write(posicionServo+1);
-	}
-	
+		
+	mapServoFromIR();
 	myReceiver.enableIRIn();
 }
-
